@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">readingUSB</string>
+
+    <string name="connect">Connect</string>
+    <string name="connected">Connected</string>
+    <string name="read">Read</string>
+    <string name="copy">Copy</string>
+
+    <string name="volumeLabel">Label:</string>
+    <string name="type">Type:</string>
+    <string name="capacity">Capacity:</string>
+    <string name="occupiedSpace">Occupied Space:</string>
+    <string name="freeSpace">Free Space:</string>
+    <string name="chunkSize">Chunk Size:</string>
+    <string name="nothing">---</string>
+
+    <string name="nodevice">No device found</string>
+
+    <string name="copied">File copied to </string>
+
+    <string name="defaultContentDescription">defaultContentDescription</string>
 </resources>

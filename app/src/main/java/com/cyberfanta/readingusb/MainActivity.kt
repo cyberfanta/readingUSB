@@ -44,6 +44,18 @@ class MainActivity : AppCompatActivity() {
                 val button1 = findViewById<TextView>(R.id.textView)
                 button1.text = getString(R.string.connect)
                 button.text = getString(R.string.connected)
+                var textView = findViewById<TextView>(R.id.label)
+                textView.text = volumeLabel
+                textView = findViewById<TextView>(R.id.type)
+                textView.text = type.toString()
+                textView = findViewById<TextView>(R.id.capacity)
+                textView.text = capacity.toString()
+                textView = findViewById<TextView>(R.id.occupied)
+                textView.text = occupiedSpace.toString()
+                textView = findViewById<TextView>(R.id.free)
+                textView.text = freeSpace.toString()
+                textView = findViewById<TextView>(R.id.chuck)
+                textView.text = chunkSize.toString()
             } else {
                 AlertDialog.Builder(this)
                         .setTitle("No device found")
@@ -51,7 +63,7 @@ class MainActivity : AppCompatActivity() {
                         // Specifying a listener allows you to take an action before dismissing the dialog.
                         // The dialog is automatically dismissed when a dialog button is clicked.
                         .setPositiveButton(android.R.string.ok)
-                        { _, _ ->
+                        { dialog, witch ->
                             // Post execution
                         }
                         .setIcon(android.R.drawable.ic_dialog_alert)

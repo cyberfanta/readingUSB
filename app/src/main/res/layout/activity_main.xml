@@ -56,15 +56,15 @@
         app:layout_constraintTop_toTopOf="@+id/button2" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:enabled="false"
         android:text="@string/volumeLabel"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView4"
-        app:layout_constraintStart_toStartOf="@+id/textView4"
+        app:layout_constraintEnd_toEndOf="@+id/type"
+        app:layout_constraintStart_toStartOf="@+id/type"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -74,19 +74,19 @@
         android:enabled="false"
         android:text="@string/nothing"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView2"
-        app:layout_constraintStart_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintEnd_toEndOf="@+id/label"
+        app:layout_constraintStart_toStartOf="@+id/label"
+        app:layout_constraintTop_toBottomOf="@+id/label" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="false"
         android:text="@string/type"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView6"
-        app:layout_constraintStart_toStartOf="@+id/textView6"
+        app:layout_constraintEnd_toEndOf="@+id/capacity"
+        app:layout_constraintStart_toStartOf="@+id/capacity"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <TextView
@@ -96,19 +96,19 @@
         android:enabled="false"
         android:text="@string/nothing"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView4"
-        app:layout_constraintStart_toStartOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+        app:layout_constraintEnd_toEndOf="@+id/type"
+        app:layout_constraintStart_toStartOf="@+id/type"
+        app:layout_constraintTop_toBottomOf="@+id/type" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/capacity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
         android:enabled="false"
         android:text="@string/capacity"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toStartOf="@+id/textView8"
+        app:layout_constraintEnd_toStartOf="@+id/occupied"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <TextView
@@ -118,12 +118,12 @@
         android:enabled="false"
         android:text="@string/nothing"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView6"
-        app:layout_constraintStart_toStartOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        app:layout_constraintEnd_toEndOf="@+id/capacity"
+        app:layout_constraintStart_toStartOf="@+id/capacity"
+        app:layout_constraintTop_toBottomOf="@+id/capacity" />
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/occupied"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -141,19 +141,19 @@
         android:enabled="false"
         android:text="@string/nothing"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView8"
-        app:layout_constraintStart_toStartOf="@+id/textView8"
-        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+        app:layout_constraintEnd_toEndOf="@+id/occupied"
+        app:layout_constraintStart_toStartOf="@+id/occupied"
+        app:layout_constraintTop_toBottomOf="@+id/occupied" />
 
     <TextView
-        android:id="@+id/textView10"
+        android:id="@+id/free"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="false"
         android:text="@string/freeSpace"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView8"
-        app:layout_constraintStart_toStartOf="@+id/textView8"
+        app:layout_constraintEnd_toEndOf="@+id/occupied"
+        app:layout_constraintStart_toStartOf="@+id/occupied"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <TextView
@@ -163,19 +163,19 @@
         android:enabled="false"
         android:text="@string/nothing"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView10"
-        app:layout_constraintStart_toStartOf="@+id/textView10"
-        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+        app:layout_constraintEnd_toEndOf="@+id/free"
+        app:layout_constraintStart_toStartOf="@+id/free"
+        app:layout_constraintTop_toBottomOf="@+id/free" />
 
     <TextView
-        android:id="@+id/textView13"
+        android:id="@+id/chuck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:enabled="false"
         android:text="@string/chunkSize"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView10"
-        app:layout_constraintStart_toStartOf="@+id/textView10"
+        app:layout_constraintEnd_toEndOf="@+id/free"
+        app:layout_constraintStart_toStartOf="@+id/free"
         app:layout_constraintTop_toBottomOf="@+id/textView12" />
 
     <TextView
@@ -185,8 +185,8 @@
         android:enabled="false"
         android:text="@string/nothing"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="@+id/textView13"
-        app:layout_constraintStart_toStartOf="@+id/textView13"
-        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+        app:layout_constraintEnd_toEndOf="@+id/chuck"
+        app:layout_constraintStart_toStartOf="@+id/chuck"
+        app:layout_constraintTop_toBottomOf="@+id/chuck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

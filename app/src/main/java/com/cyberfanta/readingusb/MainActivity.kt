@@ -2,9 +2,7 @@ package com.cyberfanta.readingusb
 
 import android.app.AlertDialog
 import android.app.PendingIntent
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.os.Bundle
@@ -29,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private var freeSpace = 0.toLong()
     private var chunkSize = 0
     private var root : UsbFile? = null
+    private var usbReceiver: BroadcastReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,20 +40,20 @@ class MainActivity : AppCompatActivity() {
             val answer = discoverUSB(this)
             if (answer) {
                 ///
-                val button1 = findViewById<TextView>(R.id.textView)
-                button1.text = getString(R.string.connect)
+                val textViewMain = findViewById<TextView>(R.id.textView)
+                textViewMain.text = getString(R.string.connect)
                 button.text = getString(R.string.connected)
-                var textView = findViewById<TextView>(R.id.label)
+                var textView = findViewById<TextView>(R.id.labeltext)
                 textView.text = volumeLabel
-                textView = findViewById<TextView>(R.id.type)
+                textView = findViewById<TextView>(R.id.typetext)
                 textView.text = type.toString()
-                textView = findViewById<TextView>(R.id.capacity)
+                textView = findViewById<TextView>(R.id.capacitytext)
                 textView.text = capacity.toString()
-                textView = findViewById<TextView>(R.id.occupied)
+                textView = findViewById<TextView>(R.id.occupiedtext)
                 textView.text = occupiedSpace.toString()
-                textView = findViewById<TextView>(R.id.free)
+                textView = findViewById<TextView>(R.id.freetext)
                 textView.text = freeSpace.toString()
-                textView = findViewById<TextView>(R.id.chuck)
+                textView = findViewById<TextView>(R.id.chucktext)
                 textView.text = chunkSize.toString()
             } else {
                 AlertDialog.Builder(this)
@@ -68,12 +67,58 @@ class MainActivity : AppCompatActivity() {
                         }
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show()
-                val button1 = findViewById<TextView>(R.id.textView)
-                button1.text = getString(R.string.nodevice)
+                val textViewMain = findViewById<TextView>(R.id.textView)
+                textViewMain.text = getString(R.string.connect)
             }
         }
 
+        usbReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val action = intent.action
+                val massStorageDevices = getMassStorageDevices(context)
+                if (ACTION_USB_PERMISSION == action) {
+                    val device = intent.getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice?
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        device?.let {
+//                        if (device != null) {
+                            setupDevice(massStorageDevices)
+                        }
+                    }
+                } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
+                    val device = intent.getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice?
+                    Log.d(TAG, "USB device attached")
+                    val textViewMain = findViewById<TextView>(R.id.textView)
+                    textViewMain.text = getString(R.string.attached)
 
+                    // determine if connected device is a mass storage devuce
+                    device?.let {
+//                    if (device != null) {
+                        discoverUSB(context)
+                    }
+                } else if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
+                    val device = intent.getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice?
+                    Log.d(TAG, "USB device detached")
+                    val textViewMain = findViewById<TextView>(R.id.textView)
+                    textViewMain.text = getString(R.string.detached)
+
+                    // determine if connected device is a mass storage device
+                    device?.let {
+//                    if (device != null) {
+//                        if (currentDevice != -1) {
+                            massStorageDevices[0].close()
+//                        }
+                        // check if there are other devices or set action bar title
+                        // to no device if not
+                        discoverUSB(context)
+                    }
+                }
+            }
+        }
+
+        val filter = IntentFilter(ACTION_USB_PERMISSION)
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        registerReceiver(usbReceiver, filter)
     }
 
     private fun discoverUSB (context: Context): Boolean {
@@ -81,6 +126,8 @@ class MainActivity : AppCompatActivity() {
         val massStorageDevices = getMassStorageDevices(context)
         if (massStorageDevices.isEmpty()) {
             Log.w(TAG, "no device found!")
+            val textViewMain = findViewById<TextView>(R.id.textView)
+            textViewMain.text = getString(R.string.nodevice)
             return false
         }
 
@@ -90,6 +137,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "received usb device via intent")
             setupDevice(massStorageDevices)
         } else {
+            Log.d(TAG, "requesting permission to access the usb device")
             val permissionIntent = PendingIntent.getBroadcast(this, 0, Intent(ACTION_USB_PERMISSION), 0)
             usbManager.requestPermission(massStorageDevices[currentDevice].usbDevice, permissionIntent)
         }
@@ -120,5 +168,11 @@ class MainActivity : AppCompatActivity() {
 
         } catch (e: IOException) {
             Log.e(TAG, "error setting up device", e)
-        }    }
+        }
+    }
+
+    public override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(usbReceiver)
+    }
 }

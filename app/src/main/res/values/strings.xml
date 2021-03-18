@@ -15,6 +15,8 @@
     <string name="nothing">---</string>
 
     <string name="nodevice">No device found</string>
+    <string name="attached">USB device attached</string>
+    <string name="detached">USB device detached</string>
 
     <string name="copied">File copied to </string>
 

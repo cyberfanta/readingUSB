@@ -42,29 +42,29 @@ class MainActivity : AppCompatActivity() {
             if (answer) {
                 ///
                 val button1 = findViewById<TextView>(R.id.textView)
-                button1.setText(getString(R.string.connect))
-                button.setText(getString(R.string.connected))
+                button1.text = getString(R.string.connect)
+                button.text = getString(R.string.connected)
             } else {
                 AlertDialog.Builder(this)
                         .setTitle("No device found")
                         .setMessage("No device found connected to your phone")
                         // Specifying a listener allows you to take an action before dismissing the dialog.
                         // The dialog is automatically dismissed when a dialog button is clicked.
-                        .setPositiveButton(android.R.string.ok, { dialog, which ->
-                            // Continue with delete operation
-                        }) // A null listener allows the button to dismiss the dialog and take no further action.
-//                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok)
+                        { _, _ ->
+                            // Post execution
+                        }
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show()
                 val button1 = findViewById<TextView>(R.id.textView)
-                button1.setText(getString(R.string.nodevice))
+                button1.text = getString(R.string.nodevice)
             }
         }
 
 
     }
 
-    fun discoverUSB (context: Context): Boolean {
+    private fun discoverUSB (context: Context): Boolean {
         val usbManager = getSystemService(USB_SERVICE) as UsbManager
         val massStorageDevices = getMassStorageDevices(context)
         if (massStorageDevices.isEmpty()) {
@@ -76,10 +76,8 @@ class MainActivity : AppCompatActivity() {
         val usbDevice = intent.getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice?
         if (usbDevice != null && usbManager.hasPermission(usbDevice)) {
             Log.d(TAG, "received usb device via intent")
-            // requesting permission is not needed in this case
             setupDevice(massStorageDevices)
         } else {
-            // first request permission from user to communicate with the underlying UsbDevice
             val permissionIntent = PendingIntent.getBroadcast(this, 0, Intent(ACTION_USB_PERMISSION), 0)
             usbManager.requestPermission(massStorageDevices[currentDevice].usbDevice, permissionIntent)
         }
@@ -91,20 +89,19 @@ class MainActivity : AppCompatActivity() {
             val currentDevice = 0
             massStorageDevices[currentDevice].init()
 
-            // we always use the first partition of the device
             val currentFs = massStorageDevices[currentDevice].partitions[0].fileSystem.also {
                 volumeLabel = it.volumeLabel
-                Log.d(TAG, "Capacity: " + volumeLabel)
+                Log.d(TAG, "Capacity: $volumeLabel")
                 type = it.type
-                Log.d(TAG, "Capacity: " + type)
+                Log.d(TAG, "Capacity: $type")
                 capacity = it.capacity
-                Log.d(TAG, "Capacity: " + capacity)
+                Log.d(TAG, "Capacity: $capacity")
                 occupiedSpace = it.occupiedSpace
-                Log.d(TAG, "Occupied Space: " + occupiedSpace)
+                Log.d(TAG, "Occupied Space: $occupiedSpace")
                 freeSpace = it.freeSpace
-                Log.d(TAG, "Free Space: " + freeSpace)
+                Log.d(TAG, "Free Space: $freeSpace")
                 chunkSize = it.chunkSize
-                Log.d(TAG, "Chunk Size: " + chunkSize)
+                Log.d(TAG, "Chunk Size: $chunkSize")
             }
 
             root = currentFs.rootDirectory

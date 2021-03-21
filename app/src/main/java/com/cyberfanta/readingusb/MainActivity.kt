@@ -8,6 +8,7 @@ import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -169,6 +170,13 @@ class MainActivity : AppCompatActivity() {
         } catch (e: IOException) {
             Log.e(TAG, "error setting up device", e)
         }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun root(view: View) {
+        val textViewMain = findViewById<TextView>(R.id.textView)
+//        textViewMain.text = getString(R.string.detached)
+        textViewMain.text = root?.absolutePath ?: ""
     }
 
     public override fun onDestroy() {

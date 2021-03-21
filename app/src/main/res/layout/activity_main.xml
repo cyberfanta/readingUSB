@@ -38,6 +38,7 @@
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="root"
         android:text="@string/read"
         app:layout_constraintBottom_toBottomOf="@+id/button1"
         app:layout_constraintEnd_toStartOf="@+id/button3"

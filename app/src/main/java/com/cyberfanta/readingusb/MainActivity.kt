@@ -12,15 +12,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.github.mjdev.libaums.UsbMassStorageDevice
-import com.github.mjdev.libaums.UsbMassStorageDevice.Companion.getMassStorageDevices
-import com.github.mjdev.libaums.fs.UsbFile
+//import com.github.mjdev.libaums.UsbMassStorageDevice
+//import com.github.mjdev.libaums.UsbMassStorageDevice.Companion.getMassStorageDevices
+//import com.github.mjdev.libaums.fs.UsbFile
 import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
     private val TAG="MainActivity"
-    private val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
+    private val ACTION_USB_PERMISSION = "com.cyberfanta.readingusb.USB_PERMISSION"
     private var volumeLabel = ""
     private var type = 0
     private var capacity = 0.toLong()

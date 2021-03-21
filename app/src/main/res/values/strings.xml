@@ -21,4 +21,12 @@
     <string name="copied">File copied to </string>
 
     <string name="defaultContentDescription">defaultContentDescription</string>
+
+
+<!--    Extra-->
+    <string name="free_space">%1$s free</string>
+    <string name="notification_title">Mounted \"%1$s\"</string>
+    <string name="notification_content">%1$d of %2$d used — %3$s</string>
+    <string name="notification_subtext">Click here to unmount.</string>
+
 </resources>

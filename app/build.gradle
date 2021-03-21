@@ -44,5 +44,10 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //Read USBlibrary
-    implementation 'me.jahnen:libaums:0.8.0'
+//    implementation 'me.jahnen:libaums:0.8.0'
+
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    // https://tika.apache.org/1.20/gettingstarted.htm
+    implementation 'org.apache.tika:tika-parsers:1.20'
 }

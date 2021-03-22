@@ -1,4 +1,4 @@
-package com.cyberfanta.readingusb
+package com.cyberfanta.readingusb.view
 
 import android.app.AlertDialog
 import android.app.PendingIntent
@@ -12,6 +12,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.cyberfanta.readingusb.R
+import com.cyberfanta.readingusb.readUSB.ReadUSB
 //import com.github.mjdev.libaums.UsbMassStorageDevice
 //import com.github.mjdev.libaums.UsbMassStorageDevice.Companion.getMassStorageDevices
 //import com.github.mjdev.libaums.fs.UsbFile
@@ -20,19 +22,13 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private val TAG="MainActivity"
-    private val ACTION_USB_PERMISSION = "com.cyberfanta.readingusb.USB_PERMISSION"
-    private var volumeLabel = ""
-    private var type = 0
-    private var capacity = 0.toLong()
-    private var occupiedSpace = 0.toLong()
-    private var freeSpace = 0.toLong()
-    private var chunkSize = 0
-    private var root : UsbFile? = null
-    private var usbReceiver: BroadcastReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //Reading USB
+        val readUSB = ReadUSB(this)
 
         //Buttom Connect
         val button = findViewById<Button>(R.id.button1)
@@ -122,7 +118,7 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(usbReceiver, filter)
     }
 
-    private fun discoverUSB (context: Context): Boolean {
+    private fun discoverUSB(context: Context): Boolean {
         val usbManager = getSystemService(USB_SERVICE) as UsbManager
         val massStorageDevices = getMassStorageDevices(context)
         if (massStorageDevices.isEmpty()) {
@@ -139,8 +135,16 @@ class MainActivity : AppCompatActivity() {
             setupDevice(massStorageDevices)
         } else {
             Log.d(TAG, "requesting permission to access the usb device")
-            val permissionIntent = PendingIntent.getBroadcast(this, 0, Intent(ACTION_USB_PERMISSION), 0)
-            usbManager.requestPermission(massStorageDevices[currentDevice].usbDevice, permissionIntent)
+            val permissionIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                Intent(ACTION_USB_PERMISSION),
+                0
+            )
+            usbManager.requestPermission(
+                massStorageDevices[currentDevice].usbDevice,
+                permissionIntent
+            )
         }
         return true
     }

@@ -49,5 +49,5 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
     // https://tika.apache.org/1.20/gettingstarted.htm
-    implementation 'org.apache.tika:tika-parsers:1.20'
+//    implementation 'org.apache.tika:tika-parsers:1.20'
 }

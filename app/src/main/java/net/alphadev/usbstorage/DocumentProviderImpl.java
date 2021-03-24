@@ -32,8 +32,8 @@ import net.alphadev.usbstorage.api.filesystem.Path;
 import net.alphadev.usbstorage.api.filesystem.StorageDevice;
 import net.alphadev.usbstorage.util.ParcelFileDescriptorUtil;
 
-import org.apache.tika.Tika;
-import org.apache.tika.config.TikaConfig;
+//import org.apache.tika.Tika;
+//import org.apache.tika.config.TikaConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -178,9 +178,9 @@ public class DocumentProviderImpl extends DocumentsProvider {
 
         for (String column : projection) {
             switch (column) {
-                case Document.COLUMN_MIME_TYPE:
-                    row.add(Document.COLUMN_MIME_TYPE, determineMimeType(path));
-                    break;
+//                case Document.COLUMN_MIME_TYPE:
+//                    row.add(Document.COLUMN_MIME_TYPE, determineMimeType(path));
+//                    break;
                 case Document.COLUMN_DOCUMENT_ID:
                     row.add(Document.COLUMN_DOCUMENT_ID, path.toAbsolute());
                     break;
@@ -211,13 +211,13 @@ public class DocumentProviderImpl extends DocumentsProvider {
         return mStorageManager.getDevice(path).getProvider();
     }
 
-    private String determineMimeType(Path path) {
-        final FileSystemProvider provider = getProvider(path);
-
-        if (provider.isDirectory(path)) {
-            return Document.MIME_TYPE_DIR;
-        }
-
-        return new Tika(TikaConfig.getDefaultConfig()).detect(path.getName());
-    }
+//    private String determineMimeType(Path path) {
+//        final FileSystemProvider provider = getProvider(path);
+//
+//        if (provider.isDirectory(path)) {
+//            return Document.MIME_TYPE_DIR;
+//        }
+//
+//        return new Tika(TikaConfig.getDefaultConfig()).detect(path.getName());
+//    }
 }

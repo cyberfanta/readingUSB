@@ -51,6 +51,8 @@ public class StorageManager {
     private final NotificationManager mNotificationManager;
     private final Context mContext;
 
+    public StorageDevice storage;
+
     public StorageManager(Context context) {
         mContext = context;
         mNotificationManager =
@@ -85,7 +87,7 @@ public class StorageManager {
             return false;
         }
 
-        StorageDevice storage = firstTry(device);
+        storage = firstTry(device);
 
         if (storage != null) {
             mMountedDevices.put(device.getId(), storage);

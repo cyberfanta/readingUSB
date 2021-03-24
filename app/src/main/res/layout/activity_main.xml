@@ -31,6 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:text="@string/connect"
+        android:onClick="connect"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -38,8 +39,8 @@
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="root"
         android:text="@string/read"
+        android:onClick="read"
         app:layout_constraintBottom_toBottomOf="@+id/button1"
         app:layout_constraintEnd_toStartOf="@+id/button3"
         app:layout_constraintStart_toEndOf="@+id/button1"
@@ -52,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:text="@string/copy"
+        android:onClick="copy"
         app:layout_constraintBottom_toBottomOf="@+id/button2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/button2" />

@@ -32,6 +32,7 @@ class ReadUSB(context: Context) {
     private var mStorageManager: StorageManager? = null
     private var usbBulkDevice: BulkDevice? = null
 //    private var mMountedDevices = HashMap<String, StorageDevice>()
+    var exception: String = ""
 
     var storage: StorageDevice? = null
 
@@ -75,12 +76,7 @@ class ReadUSB(context: Context) {
     fun loadUSB(){
         for (device in mUsbManager!!.deviceList.values) {
             if (!mUsbManager!!.hasPermission(device)) {
-                val intent = PendingIntent.getBroadcast(
-                    mContext,
-                    0,
-                    Intent(ACTION_USB_PERMISSION),
-                    0
-                )
+                val intent = PendingIntent.getBroadcast(mContext, 0, Intent(ACTION_USB_PERMISSION), 0)
                 mUsbManager!!.requestPermission(device, intent)
                 continue
             }
@@ -89,11 +85,12 @@ class ReadUSB(context: Context) {
     }
 
     fun mountUSB(device: UsbDevice?){
-        usbBulkDevice = UsbBulkDevice.read(mContext, device)
-        if (usbBulkDevice != null && mStorageManager!!.tryMount(usbBulkDevice)) {
-            mStorageManager!!.notifyStorageChanged()
+        try {
+            usbBulkDevice = UsbBulkDevice.read(mContext, device)
+            if (usbBulkDevice != null && mStorageManager!!.tryMount(usbBulkDevice)) {
+                mStorageManager!!.notifyStorageChanged()
 
-            //Reading USB Internal Data
+                //Reading USB Internal Data
 //            val blockDevice: BlockDevice = BulkBlockDevice(usbBulkDevice)
 //            blockDevice.initialize()
 //            val mbr = MasterBootRecord(blockDevice)
@@ -102,36 +99,44 @@ class ReadUSB(context: Context) {
 //                    return
 //                }
 //            }
-            storage = mStorageManager!!.storage
+                storage = mStorageManager!!.storage
+                exception = ""
+            }
+        } catch (e: Exception) {
+            exception = e.toString()
         }
+    }
+
+    fun getUSBDeviceLListSize (): String {
+        return mStorageManager?.mMountedDevices?.size.toString()
     }
 
     fun getUSBName (): String {
         return if (storage != null) {
             storage!!.getName()
         } else
-            ""
+            "---"
     }
 
     fun getUSBUnallocatedSpace (): String {
         return if (storage != null) {
             storage!!.getUnallocatedSpace().toString()
         } else
-            ""
+            "---"
     }
 
     fun getUSBTotalSpace (): String {
         return if (storage != null) {
             storage!!.getTotalSpace().toString()
         } else
-            ""
+            "---"
     }
 
     fun getUSBType (): String {
         return if (storage != null) {
             storage!!.getType()
         } else
-            ""
+            "---"
     }
 
 //    private fun tryMountPartition(device: Partition): Boolean {

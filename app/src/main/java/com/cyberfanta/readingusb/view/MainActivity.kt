@@ -29,13 +29,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     //Button Connect
-//    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER")
     fun connect (view: View) {
         readUSB.loadUSB()
     }
 
     //Button Read
-//    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER")
     fun read(view: View) {
         var textView = findViewById<TextView>(R.id.labeltext)
         textView.text = readUSB.getUSBName()
@@ -49,10 +49,14 @@ class MainActivity : AppCompatActivity() {
         textView.text = readUSB.getUSBUnallocatedSpace()
 //        textView = findViewById<TextView>(R.id.chucktext)
 //        textView.text = chunkSize.toString()
+        textView = findViewById<TextView>(R.id.textView)
+        textView.text = readUSB.getUSBDeviceLListSize()
+        if (!readUSB.exception.equals(""))
+            textView.text = readUSB.exception
     }
 
     //Button Copy
-//    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER")
     fun copy(view: View) {
         //
     }

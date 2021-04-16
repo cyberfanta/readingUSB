@@ -47,10 +47,10 @@ public class StorageManager {
     private static final String AUTHORITY = "net.alphadev.usbstorage.documents";
     private static final String ACTION_UNMOUNT_DEVICE = "net.alphadev.usbstorage.ACTION_UNMOUNT_DEVICE";
 
-    private final HashMap<String, StorageDevice> mMountedDevices = new HashMap<>();
     private final NotificationManager mNotificationManager;
     private final Context mContext;
 
+    public HashMap<String, StorageDevice> mMountedDevices = new HashMap<>();
     public StorageDevice storage;
 
     public StorageManager(Context context) {

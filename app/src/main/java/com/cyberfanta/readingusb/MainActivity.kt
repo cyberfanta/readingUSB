@@ -13,43 +13,33 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.mjdev.libaums.UsbMassStorageDevice
 import com.github.mjdev.libaums.fs.UsbFile
 import java.io.IOException
-import java.nio.file.FileSystem
 
 class MainActivity : AppCompatActivity() {
-    val TAG = "MainActivity"
+    private val TAG = "MainActivity"
+    val ACTION_USB_PERMISSION = "USB_PERMISSION"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val usbManager = this.getSystemService(USB_SERVICE) as UsbManager
-
-        val ACTION_USB_PERMISSION = "USB_PERMISSION"
         val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val action : String? = intent.action
-                val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
+                val usbManager = context.getSystemService(USB_SERVICE) as UsbManager
+                val usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as UsbDevice?
 
-                if (ACTION_USB_PERMISSION == action) {
-                    synchronized(this) {
-
-                        if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                            readUSB(usbManager)
-                        } else {
-                            var string= ""
-                            string += "Permission denied for device: $device\n\n"
-                            Log.i(TAG, "Permission denied for device: $device\n\n")
-
-                            val tv : TextView = findViewById(R.id.text)
-                            tv.text = string
+                usbDevice?.let {
+                    when {
+                        ACTION_USB_PERMISSION == action -> {
+                            setupUSB(usbManager, usbDevice)
                         }
-                    }
-                } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
-                    if (device != null){
-                        openUSB (usbManager, device)
-                    }
-                } else if (UsbManager.ACTION_USB_DEVICE_DETACHED == action) {
-                    if (device != null) {
-                        closeUSB (usbManager, device)
+                        UsbManager.ACTION_USB_DEVICE_ATTACHED == action -> {
+                            // requestUSB (usbManager)
+                            openUSB(usbManager, usbDevice)
+                        }
+                        UsbManager.ACTION_USB_DEVICE_DETACHED == action -> {
+                            closeUSB(usbManager, usbDevice)
+                        }
                     }
                 }
             }
@@ -58,14 +48,20 @@ class MainActivity : AppCompatActivity() {
         val intentFilter = IntentFilter(ACTION_USB_PERMISSION)
         intentFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
         intentFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        this.registerReceiver(broadcastReceiver, intentFilter)
+        registerReceiver(broadcastReceiver, intentFilter)
 
+        val usbManager = getSystemService(USB_SERVICE) as UsbManager
+//        usbManager = this.getSystemService(USB_SERVICE) as UsbManager
+        requestUSB(usbManager)
+    }
+
+    private fun requestUSB (usbManager: UsbManager) {
         for (device in usbManager.deviceList.values) {
             if (!usbManager.hasPermission(device)) {
                 val permissionIntent = PendingIntent.getBroadcast(
-                    this, 0, Intent(
+                        this, 0, Intent(
                         ACTION_USB_PERMISSION
-                    ), 0
+                ), 0
                 )
                 usbManager.requestPermission(device, permissionIntent)
                 continue
@@ -73,7 +69,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun readUSB(usbManager: UsbManager){
+    fun setupUSB (usbManager: UsbManager, usbDevice: UsbDevice?) {
+        synchronized(this) {
+            if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                readUSB(usbManager)
+            } else {
+                var string = ""
+                string += "Permission denied for device: $usbDevice\n\n"
+                Log.i(TAG, "Permission denied for device: $usbDevice\n\n")
+
+                val tv: TextView = findViewById(R.id.text)
+                tv.text = string
+            }
+        }
+    }
+
+    private fun readUSB (usbManager: UsbManager){
         var string= ""
         for (device in usbManager.deviceList.values) {
             string += "Found usb device: $device\n\n"
@@ -100,24 +111,24 @@ class MainActivity : AppCompatActivity() {
         tv.text = string
     }
 
-    fun openUSB(usbManager: UsbManager, usbDevice: UsbDevice) {
-        var bytes: ByteArray?
-        val TIMEOUT = 0
+    fun openUSB (usbManager: UsbManager, usbDevice: UsbDevice?) {
+//        var bytes: ByteArray?
+//        val TIMEOUT = 0
         val forceClaim = true
 
-        val usbInterface : UsbInterface =
-            usbDevice.getInterface(0)
-        val usbEndpoint : UsbEndpoint =
-            usbInterface.getEndpoint(0)
+        val usbInterface : UsbInterface? =
+                usbDevice?.getInterface(0)
+//        val usbEndpoint : UsbEndpoint? =
+//                usbInterface?.getEndpoint(0)
         val usbDeviceConnection : UsbDeviceConnection =
             usbManager.openDevice(usbDevice)
         usbDeviceConnection.claimInterface(usbInterface, forceClaim)
 //        usbDeviceConnection.bulkTransfer(usbEndpoint, bytes, bytes.size, TIMEOUT)
     }
 
-    fun closeUSB(usbManager: UsbManager, usbDevice: UsbDevice) {
-        val usbInterface : UsbInterface =
-            usbDevice.getInterface(0)
+    fun closeUSB (usbManager: UsbManager, usbDevice: UsbDevice?) {
+        val usbInterface : UsbInterface? =
+                usbDevice?.getInterface(0)
         val usbDeviceConnection : UsbDeviceConnection =
             usbManager.openDevice(usbDevice)
 
@@ -128,7 +139,7 @@ class MainActivity : AppCompatActivity() {
         usbDeviceConnection.close()
     }
 
-    fun setupUSB(context: Context) {
+    fun setupUSB (context: Context) {
         val devices : Array<UsbMassStorageDevice> = UsbMassStorageDevice.getMassStorageDevices(context)
 
         if (devices.isEmpty()) {

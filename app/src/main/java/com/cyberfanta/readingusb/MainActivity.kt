@@ -1,5 +1,6 @@
 package com.cyberfanta.readingusb
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,37 +9,57 @@ import android.content.IntentFilter
 import android.hardware.usb.*
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mjdev.libaums.UsbMassStorageDevice
+import com.github.mjdev.libaums.fs.FileSystem
 import com.github.mjdev.libaums.fs.UsbFile
 import java.io.IOException
 
+@Suppress("UNUSED_PARAMETER")
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
     val ACTION_USB_PERMISSION = "USB_PERMISSION"
+
+    lateinit var mUsbManager : UsbManager
+    var mUsbDevice : UsbDevice? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+            @SuppressLint("SetTextI18n")
             override fun onReceive(context: Context, intent: Intent) {
                 val action : String? = intent.action
-                val usbManager = context.getSystemService(USB_SERVICE) as UsbManager
-                val usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as UsbDevice?
+                mUsbManager = context.getSystemService(USB_SERVICE) as UsbManager
+                mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE) as UsbDevice?
 
-                usbDevice?.let {
+                mUsbDevice?.let {
                     when {
                         ACTION_USB_PERMISSION == action -> {
-                            setupUSB(usbManager, usbDevice)
+                            setupUSB(mUsbManager, mUsbDevice)
+                            val tv: TextView = findViewById(R.id.text)
+                            tv.text = tv.text.toString() + "\n" + action
+                            Log.i(TAG, "$action")
                         }
                         UsbManager.ACTION_USB_DEVICE_ATTACHED == action -> {
-                            // requestUSB (usbManager)
-                            openUSB(usbManager, usbDevice)
+                            if (!mUsbManager.hasPermission(mUsbDevice))
+                                requestUSB (mUsbManager)
+                            val tv: TextView = findViewById(R.id.text)
+                            tv.text = tv.text.toString() + "\n" + action
+                            Log.i(TAG, "$action")
                         }
                         UsbManager.ACTION_USB_DEVICE_DETACHED == action -> {
-                            closeUSB(usbManager, usbDevice)
+//                            if (usbManager.hasPermission(usbDevice))
+//                                closeUSB(usbManager, usbDevice)
+                            val tv: TextView = findViewById(R.id.text)
+                            tv.text = tv.text.toString() + "\n" + action
+                            Log.i(TAG, "$action")
+                        }
+                        else -> {
+
                         }
                     }
                 }
@@ -51,39 +72,39 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(broadcastReceiver, intentFilter)
 
         val usbManager = getSystemService(USB_SERVICE) as UsbManager
-//        usbManager = this.getSystemService(USB_SERVICE) as UsbManager
         requestUSB(usbManager)
     }
 
     private fun requestUSB (usbManager: UsbManager) {
-        for (device in usbManager.deviceList.values) {
-            if (!usbManager.hasPermission(device)) {
+        for (usbDevice in usbManager.deviceList.values) {
+            if (!usbManager.hasPermission(usbDevice)) {
                 val permissionIntent = PendingIntent.getBroadcast(
                         this, 0, Intent(
                         ACTION_USB_PERMISSION
                 ), 0
                 )
-                usbManager.requestPermission(device, permissionIntent)
+                usbManager.requestPermission(usbDevice, permissionIntent)
                 continue
             }
         }
     }
 
+    @SuppressLint("SetTextI18n")
     fun setupUSB (usbManager: UsbManager, usbDevice: UsbDevice?) {
         synchronized(this) {
-            if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+            if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, true)) {
+                requestUSB (usbManager)
                 readUSB(usbManager)
             } else {
-                var string = ""
-                string += "Permission denied for device: $usbDevice\n\n"
-                Log.i(TAG, "Permission denied for device: $usbDevice\n\n")
-
+                val string = "Permission denied for device: $usbDevice\n\n"
+                Log.i(TAG, string)
                 val tv: TextView = findViewById(R.id.text)
-                tv.text = string
+                tv.text = tv.text.toString() + "\n" + string
             }
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun readUSB (usbManager: UsbManager){
         var string= ""
         for (device in usbManager.deviceList.values) {
@@ -101,29 +122,37 @@ class MainActivity : AppCompatActivity() {
                     val usbEndpoint : UsbEndpoint = usbInterface.getEndpoint(j)
                     string += "Found usb endpoint: $usbEndpoint\n\n"
                     Log.i(TAG, "Found usb endpoint: $usbEndpoint\n\n")
-
                 }
-
             }
         }
 
         val tv : TextView = findViewById(R.id.text)
-        tv.text = string
+        tv.text = tv.text.toString() + "\n" + string
     }
 
+    fun openUSBAction (view: View) {
+        if (mUsbManager.hasPermission(mUsbDevice))
+            openUSB(mUsbManager, mUsbDevice)
+    }
+
+    @SuppressLint("SetTextI18n")
     fun openUSB (usbManager: UsbManager, usbDevice: UsbDevice?) {
-//        var bytes: ByteArray?
-//        val TIMEOUT = 0
+        val bytes: ByteArray? = null
+        val TIMEOUT = 0
         val forceClaim = true
 
         val usbInterface : UsbInterface? =
                 usbDevice?.getInterface(0)
-//        val usbEndpoint : UsbEndpoint? =
-//                usbInterface?.getEndpoint(0)
+        val usbEndpoint : UsbEndpoint? =
+                usbInterface?.getEndpoint(0)
         val usbDeviceConnection : UsbDeviceConnection =
             usbManager.openDevice(usbDevice)
         usbDeviceConnection.claimInterface(usbInterface, forceClaim)
-//        usbDeviceConnection.bulkTransfer(usbEndpoint, bytes, bytes.size, TIMEOUT)
+        usbDeviceConnection.bulkTransfer(usbEndpoint, bytes, bytes!!.size, TIMEOUT)
+        val string = "\n\nusbDeviceConnection: $bytes\n\n"
+        Log.i(TAG, string)
+        val tv : TextView = findViewById(R.id.text)
+        tv.text = tv.text.toString() + "\n" + string
     }
 
     fun closeUSB (usbManager: UsbManager, usbDevice: UsbDevice?) {
@@ -134,9 +163,23 @@ class MainActivity : AppCompatActivity() {
 
         val release = usbDeviceConnection.releaseInterface(usbInterface)
         if (!release){
-            Log.i(TAG, "Could not release the interface!!!")
+            val string = "Could not release the interface!!!"
+            Log.i(TAG, string)
+            val tv: TextView = findViewById(R.id.text)
+            tv.text = string
+            return
         }
         usbDeviceConnection.close()
+
+        val string = "USB was released!!!"
+        Log.i(TAG, string)
+        val tv: TextView = findViewById(R.id.text)
+        tv.text = string
+    }
+
+    fun setupUSBAction (view: View) {
+        if (mUsbManager.hasPermission(mUsbDevice))
+            setupUSB(this)
     }
 
     fun setupUSB (context: Context) {
@@ -152,7 +195,7 @@ class MainActivity : AppCompatActivity() {
         try {
             device.init()
 
-            val fileSystem : com.github.mjdev.libaums.fs.FileSystem = device.partitions[0].fileSystem
+            val fileSystem : FileSystem = device.partitions[0].fileSystem
             Log.i(TAG, "Volume label: " + fileSystem.volumeLabel)
 
             val root : UsbFile = fileSystem.rootDirectory
@@ -164,6 +207,40 @@ class MainActivity : AppCompatActivity() {
         } catch (e : IOException) {
             Log.i(TAG, "Error setting up device ", e)
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun setupDeviceAction (view: View) {
+        val devices : Array<UsbMassStorageDevice> = UsbMassStorageDevice.getMassStorageDevices(this)
+
+        if (devices.isEmpty()) {
+            Log.i(TAG, "No device found")
+            return
+        }
+
+        val device : UsbMassStorageDevice = devices[0]
+
+        try {
+            device.init()
+
+            var string: String
+            val tv : TextView = findViewById(R.id.text)
+
+            string = "device.partitions.size: " + device.partitions.size.toString()
+            Log.i(TAG, string)
+            tv.text = tv.text.toString() + "\n" + string
+            string = "device.partitions[0].fileSystem.type: " + device.partitions[0].fileSystem.type
+            Log.i(TAG, string)
+            tv.text = tv.text.toString() + "\n" + string
+
+
+        } catch (e : IOException) {
+            val string = "Error setting up device $e"
+            Log.i(TAG, string)
+            val tv : TextView = findViewById(R.id.text)
+            tv.text = tv.text.toString() + "\n" + string
+        }
+
     }
 
 //    fun

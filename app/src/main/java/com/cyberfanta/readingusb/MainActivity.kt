@@ -12,14 +12,16 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import com.github.mjdev.libaums.UsbMassStorageDevice
 import com.github.mjdev.libaums.fs.FileSystem
 import com.github.mjdev.libaums.fs.UsbFile
+import com.github.mjdev.libaums.partition.mbr.MasterBootRecord
 import java.io.IOException
 
 @Suppress("UNUSED_PARAMETER")
 class MainActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
+    private val TAG = this::class.java.simpleName
     val ACTION_USB_PERMISSION = "USB_PERMISSION"
 
     lateinit var mUsbManager : UsbManager
@@ -59,7 +61,6 @@ class MainActivity : AppCompatActivity() {
                             Log.i(TAG, "$action")
                         }
                         else -> {
-
                         }
                     }
                 }
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity() {
                 ), 0
                 )
                 usbManager.requestPermission(usbDevice, permissionIntent)
+                mUsbDevice = usbDevice
                 continue
             }
         }
@@ -130,7 +132,19 @@ class MainActivity : AppCompatActivity() {
         tv.text = tv.text.toString() + "\n" + string
     }
 
+    @SuppressLint("SetTextI18n")
     fun openUSBAction (view: View) {
+        mUsbManager = getSystemService(USB_SERVICE) as UsbManager
+
+        if (mUsbDevice == null) {
+            requestUSB(mUsbManager)
+            val tv: TextView = findViewById(R.id.text)
+            val string = "Manual Loading of USB"
+            tv.text = tv.text.toString() + "\n$string"
+            Log.i(TAG, string)
+            return
+        }
+
         if (mUsbManager.hasPermission(mUsbDevice))
             openUSB(mUsbManager, mUsbDevice)
     }
@@ -226,13 +240,15 @@ class MainActivity : AppCompatActivity() {
             var string: String
             val tv : TextView = findViewById(R.id.text)
 
-            string = "device.partitions.size: " + device.partitions.size.toString()
-            Log.i(TAG, string)
-            tv.text = tv.text.toString() + "\n" + string
-            string = "device.partitions[0].fileSystem.type: " + device.partitions[0].fileSystem.type
+            string = "\ndevice.partitions.size: " + device.partitions.size.toString()
             Log.i(TAG, string)
             tv.text = tv.text.toString() + "\n" + string
 
+            if (device.partitions.isNotEmpty()) {
+                string = "\ndevice.partitions[0].fileSystem.type: " + device.partitions[0].fileSystem.type
+                Log.i(TAG, string)
+                tv.text = tv.text.toString() + "\n" + string
+            }
 
         } catch (e : IOException) {
             val string = "Error setting up device $e"

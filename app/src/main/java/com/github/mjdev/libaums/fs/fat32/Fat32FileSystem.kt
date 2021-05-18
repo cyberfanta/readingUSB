@@ -22,6 +22,7 @@ import com.github.mjdev.libaums.driver.BlockDeviceDriver
 import com.github.mjdev.libaums.fs.FileSystem
 import com.github.mjdev.libaums.fs.UsbFile
 import com.github.mjdev.libaums.fs.fat12.Fat12BootSector
+import com.github.mjdev.libaums.fs.fat12.Fat12FAT
 import com.github.mjdev.libaums.partition.PartitionTypes
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -136,8 +137,11 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                             buffer.get(61).toInt().toChar() != ' ')) {
                     Log.i(TAG, "It is FAT12!!!")
 
-                    Fat12BootSector(buffer)
+                    //todo: mejorar extracción de datos, crear clase a partir del  blockDevice
+                    val bootSector = Fat12BootSector(buffer)
+                    bootSector.log()
 
+/*
 //                    var string1 = ""
 //                    var string2 = ""
 //                    for (i in 0..2) {
@@ -191,239 +195,245 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
 //                    num = Integer.parseInt(string1, 16)
 //                    Log.i(TAG, "Number of FAT copies: 16: $string1 $string2 ($num)")
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(18))
-                    string1 += String.format("%02x", buffer.get(17))
-                    string2 += buffer.get(18).toInt().toChar()
-                    string2 += buffer.get(17).toInt().toChar()
-                    num = Integer.parseInt(string1, 16)
-                    string = "Number of root directory entries: 17..18: $string1 $string2 ($num)"
-                    when (num) {
-                        0 -> Log.i(TAG, "$string FAT32")
-                        512 -> Log.i(TAG, "$string FAT16")
-                        else -> Log.i(TAG, string)
-                    }
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(18))
+//                    string1 += String.format("%02x", buffer.get(17))
+//                    string2 += buffer.get(18).toInt().toChar()
+//                    string2 += buffer.get(17).toInt().toChar()
+//                    num = Integer.parseInt(string1, 16)
+//                    string = "Number of root directory entries: 17..18: $string1 $string2 ($num)"
+//                    when (num) {
+//                        0 -> Log.i(TAG, "$string FAT32")
+//                        512 -> Log.i(TAG, "$string FAT16")
+//                        else -> Log.i(TAG, string)
+//                    }
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(20))
-                    string1 += String.format("%02x", buffer.get(19))
-                    string2 += buffer.get(20).toInt().toChar()
-                    string2 += buffer.get(19).toInt().toChar()
-                    num = Integer.parseInt(string1, 16)
-                    Log.i(
-                        TAG,
-                        "Total number of sectors in the filesystem: 19..20: $string1 $string2 ($num)"
-                    )
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(20))
+//                    string1 += String.format("%02x", buffer.get(19))
+//                    string2 += buffer.get(20).toInt().toChar()
+//                    string2 += buffer.get(19).toInt().toChar()
+//                    num = Integer.parseInt(string1, 16)
+//                    Log.i(
+//                        TAG,
+//                        "Total number of sectors in the filesystem: 19..20: $string1 $string2 ($num)"
+//                    )
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(21))
-                    string2 += buffer.get(21).toInt().toChar()
-                    when (string1) {
-                        "f0" -> Log.i(
-                            TAG,
-                            "Media descriptor type: 21: $string1 $string2 1.4 MB 3.5\" floppy"
-                        )
-                        "f8" -> Log.i(TAG, "Media descriptor type: 21: $string1 $string2 hard disk")
-                        else -> Log.i(TAG, "Media descriptor type: 21: $string1 $string2")
-                    }
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(21))
+//                    string2 += buffer.get(21).toInt().toChar()
+//                    when (string1) {
+//                        "f0" -> Log.i(
+//                            TAG,
+//                            "Media descriptor type: 21: $string1 $string2 1.4 MB 3.5\" floppy"
+//                        )
+//                        "f8" -> Log.i(TAG, "Media descriptor type: 21: $string1 $string2 hard disk")
+//                        else -> Log.i(TAG, "Media descriptor type: 21: $string1 $string2")
+//                    }
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(23))
-                    string1 += String.format("%02x", buffer.get(22))
-                    string2 += buffer.get(23).toInt().toChar()
-                    string2 += buffer.get(22).toInt().toChar()
-                    num = Integer.parseInt(string1, 16)
-                    string = "Number of sectors per FAT: 22..23: $string1 $string2 ($num)"
-                    when (num) {
-                        0 -> Log.i(TAG, "$string FAT32")
-                        else -> Log.i(TAG, string)
-                    }
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(23))
+//                    string1 += String.format("%02x", buffer.get(22))
+//                    string2 += buffer.get(23).toInt().toChar()
+//                    string2 += buffer.get(22).toInt().toChar()
+//                    num = Integer.parseInt(string1, 16)
+//                    string = "Number of sectors per FAT: 22..23: $string1 $string2 ($num)"
+//                    when (num) {
+//                        0 -> Log.i(TAG, "$string FAT32")
+//                        else -> Log.i(TAG, string)
+//                    }
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(25))
-                    string1 += String.format("%02x", buffer.get(24))
-                    string2 += buffer.get(25).toInt().toChar()
-                    string2 += buffer.get(24).toInt().toChar()
-                    num = Integer.parseInt(string1, 16)
-                    Log.i(TAG, "Number of sectors per track: 24..25: $string1 $string2 ($num)")
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(25))
+//                    string1 += String.format("%02x", buffer.get(24))
+//                    string2 += buffer.get(25).toInt().toChar()
+//                    string2 += buffer.get(24).toInt().toChar()
+//                    num = Integer.parseInt(string1, 16)
+//                    Log.i(TAG, "Number of sectors per track: 24..25: $string1 $string2 ($num)")
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(27))
-                    string1 += String.format("%02x", buffer.get(26))
-                    string2 += buffer.get(27).toInt().toChar()
-                    string2 += buffer.get(26).toInt().toChar()
-                    num = Integer.parseInt(string1, 16)
-                    when (num) {
-                        2 -> Log.i(
-                            TAG,
-                            "Number of heads: 26..27: $string1 $string2 ($num) double-sided diskette"
-                        )
-                        else -> Log.i(TAG, "Number of heads: 26..27: $string1 $string2 ($num)")
-                    }
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(27))
+//                    string1 += String.format("%02x", buffer.get(26))
+//                    string2 += buffer.get(27).toInt().toChar()
+//                    string2 += buffer.get(26).toInt().toChar()
+//                    num = Integer.parseInt(string1, 16)
+//                    when (num) {
+//                        2 -> Log.i(
+//                            TAG,
+//                            "Number of heads: 26..27: $string1 $string2 ($num) double-sided diskette"
+//                        )
+//                        else -> Log.i(TAG, "Number of heads: 26..27: $string1 $string2 ($num)")
+//                    }
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 31 downTo 28) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    num = Integer.parseInt(string1, 16)
-                    Log.i(TAG, "Number of hidden sectors: 28..31: $string1 $string2 ($num)")
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 31 downTo 28) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    num = Integer.parseInt(string1, 16)
+//                    Log.i(TAG, "Number of hidden sectors: 28..31: $string1 $string2 ($num)")
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 35 downTo 32) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    num = Integer.parseInt(string1, 16)
-                    Log.i(
-                        TAG,
-                        "Total number of sectors in the filesystem: 32..35: $string1 $string2 ($num)"
-                    )
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 35 downTo 32) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    num = Integer.parseInt(string1, 16)
+//                    Log.i(
+//                        TAG,
+//                        "Total number of sectors in the filesystem: 32..35: $string1 $string2 ($num)"
+//                    )
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(36))
-                    string2 += buffer.get(36).toInt().toChar()
-                    Log.i(TAG, "Logical Drive Number: 36: $string1 $string2")
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(36))
+//                    string2 += buffer.get(36).toInt().toChar()
+//                    Log.i(TAG, "Logical Drive Number: 36: $string1 $string2")
+//
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(37))
+//                    string2 += buffer.get(37).toInt().toChar()
+//                    when (string1) {
+//                        "00" -> Log.i(TAG, "Reserved: 37: $string1 $string2 need disk check")
+//                        "01" -> Log.i(TAG, "Reserved: 37: $string1 $string2 need surface scan")
+//                        else -> Log.i(TAG, "Reserved: 37: $string1 $string2")
+//                    }
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(37))
-                    string2 += buffer.get(37).toInt().toChar()
-                    when (string1) {
-                        "00" -> Log.i(TAG, "Reserved: 37: $string1 $string2 need disk check")
-                        "01" -> Log.i(TAG, "Reserved: 37: $string1 $string2 need surface scan")
-                        else -> Log.i(TAG, "Reserved: 37: $string1 $string2")
-                    }
+//                    string1 = ""
+//                    string2 = ""
+//                    string1 += String.format("%02x", buffer.get(38))
+//                    string2 += buffer.get(38).toInt().toChar()
+//                    Log.i(TAG, "Extended signature: 38: $string1 $string2")
 
-                    string1 = ""
-                    string2 = ""
-                    string1 += String.format("%02x", buffer.get(38))
-                    string2 += buffer.get(38).toInt().toChar()
-                    Log.i(TAG, "Extended signature: 38: $string1 $string2")
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 39..42) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    Log.i(TAG, "Serial number of partition: 39..42: $string1 $string2")
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 39..42) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    Log.i(TAG, "Serial number of partition: 39..42: $string1 $string2")
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 43..53) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    Log.i(TAG, "Volume label: 43..53: $string1 $string2")
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 43..53) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    Log.i(TAG, "Volume label: 43..53: $string1 $string2")
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 54..61) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    when (string1) {
+//                        "FAT12   " -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2 FAT12")
+//                        "FAT16   " -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2 FAT16")
+//                        "FAT     " -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2 FAT")
+//                        else -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2")
+//                    }
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 54..61) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    when (string1) {
-                        "FAT12   " -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2 FAT12")
-                        "FAT16   " -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2 FAT16")
-                        "FAT     " -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2 FAT")
-                        else -> Log.i(TAG, "Filesystem type: 54..61: $string1 $string2")
-                    }
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 62..509) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    Log.i(TAG, "Bootstrap: 62..509: $string1\n$string2")
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 62..509) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    Log.i(TAG, "Bootstrap: 62..509: $string1\n$string2")
+//                    string1 = ""
+//                    string2 = ""
+//                    for (i in 510..511) {
+//                        string1 += String.format("%02x", buffer.get(i))
+//                        string2 += buffer.get(i).toInt().toChar()
+//                    }
+//                    Log.i(TAG, "Signature: 510..511: $string1 $string2")
+*/
 
-                    string1 = ""
-                    string2 = ""
-                    for (i in 510..511) {
-                        string1 += String.format("%02x", buffer.get(i))
-                        string2 += buffer.get(i).toInt().toChar()
-                    }
-                    Log.i(TAG, "Signature: 510..511: $string1 $string2")
-
-                    val buffer1 = ByteBuffer.allocate(2048)
+                    val buffer1 = ByteBuffer.allocate(bootSector.bytesPerSectorDec * bootSector.fatCopiesDec) //2048
                     blockDevice.read(512, buffer1)
                     buffer1.flip()
 
-                    for (j in 1..4) {
-                        string1 = ""
-                        string2 = ""
-                        val k = 512 * (j - 1)
-                        for (i in (0 + k)..(511 + k) step 3) {
-                            var string3 = ""
-                            var string4 = ""
-                            var string5 = ""
-                            var string6 = ""
+                    val fat12Tables = Fat12FAT(buffer1, bootSector)
+                    fat12Tables.log()
 
-                            for (l in 0..2) {
-                                try {
-                                    string1 += String.format("%02x", buffer1.get(i+l))
-                                    string2 += buffer1.get(i+l).toInt().toChar()
-                                } catch (e: IndexOutOfBoundsException) {
-                                }
-                            }
-
-                            try {
-                                string3 += String.format("%02x", buffer1.get(i+1))
-                            } catch (e: IndexOutOfBoundsException) {
-                            }
-                            string3 += String.format("%02x", buffer1.get(i))
-                            try {
-                                string5 += String.format("%8s", Integer.toBinaryString((buffer1.get(i+1) and 0xFF.toByte()).toInt())).replace(' ', '0')
-                            } catch (e: IndexOutOfBoundsException) {
-                            }
-                            string5 += String.format("%8s", Integer.toBinaryString((buffer1.get(i) and 0xFF.toByte()).toInt())).replace(' ', '0')
-                            try {
-                                string4 += String.format("%02x", buffer1.get(i+2))
-                            } catch (e: IndexOutOfBoundsException) {
-                            }
-                            try {
-                                string4 += String.format("%02x", buffer1.get(i+1))
-                            } catch (e: IndexOutOfBoundsException) {
-                            }
-                            try {
-                                string6 += String.format("%8s", Integer.toBinaryString((buffer1.get(i+2) and 0xFF.toByte()).toInt())).replace(' ', '0')
-                            } catch (e: IndexOutOfBoundsException) {
-                            }
-                            try {
-                                string6 += String.format("%8s", Integer.toBinaryString((buffer1.get(i+1) and 0xFF.toByte()).toInt())).replace(' ', '0')
-                            } catch (e: IndexOutOfBoundsException) {
-                            }
-
-                            val num1 = string3.toLong(16)
-                            val num2 = string4.toLong(16)
-
-                            string1 += " - $string3 $string4 ($string5 $string6) - $num1 $num2\n"
-                        }
-                        Log.i(
-                            TAG,
-                            "FAT $j: " + (512 + (j - 1) * 512) + ".." + (1023 + (j - 1) * 512) + ":"
-                        )
-                        Log.i(TAG, string1)
-                        Log.i(TAG, string2)
-                    }
+/*
+//                    for (j in 1..4) {
+//                        var string1 = ""
+//                        var string2 = ""
+//                        val k = 512 * (j - 1)
+//                        for (i in (0 + k)..(511 + k) step 3) {
+//                            var string3 = ""
+//                            var string4 = ""
+//                            var string5 = ""
+//                            var string6 = ""
+//
+//                            for (l in 0..2) {
+//                                try {
+//                                    string1 += String.format("%02x", buffer1.get(i+l))
+//                                    string2 += buffer1.get(i+l).toInt().toChar()
+//                                } catch (e: IndexOutOfBoundsException) {
+//                                }
+//                            }
+//
+//                            try {
+//                                string3 += String.format("%02x", buffer1.get(i+1))
+//                            } catch (e: IndexOutOfBoundsException) {
+//                            }
+//                            string3 += String.format("%02x", buffer1.get(i))
+//                            try {
+//                                string5 += String.format("%8s", Integer.toBinaryString((buffer1.get(i+1) and 0xFF.toByte()).toInt())).replace(' ', '0')
+//                            } catch (e: IndexOutOfBoundsException) {
+//                            }
+//                            string5 += String.format("%8s", Integer.toBinaryString((buffer1.get(i) and 0xFF.toByte()).toInt())).replace(' ', '0')
+//                            try {
+//                                string4 += String.format("%02x", buffer1.get(i+2))
+//                            } catch (e: IndexOutOfBoundsException) {
+//                            }
+//                            try {
+//                                string4 += String.format("%02x", buffer1.get(i+1))
+//                            } catch (e: IndexOutOfBoundsException) {
+//                            }
+//                            try {
+//                                string6 += String.format("%8s", Integer.toBinaryString((buffer1.get(i+2) and 0xFF.toByte()).toInt())).replace(' ', '0')
+//                            } catch (e: IndexOutOfBoundsException) {
+//                            }
+//                            try {
+//                                string6 += String.format("%8s", Integer.toBinaryString((buffer1.get(i+1) and 0xFF.toByte()).toInt())).replace(' ', '0')
+//                            } catch (e: IndexOutOfBoundsException) {
+//                            }
+//
+//                            val num1 = string3.toLong(16)
+//                            val num2 = string4.toLong(16)
+//
+//                            string1 += " - $string3 $string4 ($string5 $string6) - $num1 $num2\n"
+//                        }
+//                        Log.i(
+//                            TAG,
+//                            "FAT $j: " + (512 + (j - 1) * 512) + ".." + (1023 + (j - 1) * 512) + ":"
+//                        )
+//                        Log.i(TAG, string1)
+//                        Log.i(TAG, string2)
+//                    }
+*/
 
                     val buffer2 = ByteBuffer.allocate(512)
                     blockDevice.read(2560, buffer2)
                     buffer2.flip()
 
                     for (j in 0..31 step 2) {
-                        string1 = ""
-                        string2 = ""
+                        var string1 = ""
+                        var string2 = ""
                         var string3 = ""
                         var string4 = ""
                         for (i in 0..15) {
@@ -449,7 +459,7 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                         Log.i(TAG, "File: $string1.$string2")
                         string1 = ""
                         string1 += String.format("%02x", buffer2.get(j * 16 + 11))
-                        num = Integer.parseInt(string1, 16)
+                        var num = Integer.parseInt(string1, 16)
                         string2 = "Attrib: $string1 "
                         string2 += Integer.toBinaryString(num)
                         if (num % 2 == 1)
@@ -489,8 +499,8 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                     buffer3.flip()
 
                     for (k in 0..4) {
-                        string1 = ""
-                        string2 = ""
+                        var string1 = ""
+                        var string2 = ""
                         val l = 512 * k
                         for (i in (0 + l)..(511 + l)) {
                             string1 += String.format("%02x", buffer3.get(i))

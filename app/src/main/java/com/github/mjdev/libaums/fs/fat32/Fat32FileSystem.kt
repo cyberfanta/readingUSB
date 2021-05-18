@@ -431,68 +431,70 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                     blockDevice.read(2560, buffer2)
                     buffer2.flip()
 
-                    for (j in 0..31 step 2) {
-                        var string1 = ""
-                        var string2 = ""
-                        var string3 = ""
-                        var string4 = ""
-                        for (i in 0..15) {
-                            string1 += String.format("%02x", buffer2.get(j * 16 + i))
-                            string2 += buffer2.get(j * 16 + i).toInt().toChar()
-                            string3 += String.format("%02x", buffer2.get((j + 1) * 16 + i))
-                            string4 += buffer2.get((j + 1) * 16 + i).toInt().toChar()
-                        }
-                        Log.i(
-                            TAG,
-                            "Root Directory Entry " + (j / 2) + ": " + (2560 + j * 16) + ".." + (2592 + j * 16 - 1) + ":"
-                        )
-                        Log.i(TAG, string1)
-                        Log.i(TAG, string3)
-                        Log.i(TAG, string2)
-                        Log.i(TAG, string4)
-                        string1 = ""
-                        string2 = ""
-                        for (i in 0..7)
-                            string1 += buffer2.get(j * 16 + i).toInt().toChar()
-                        for (i in 8..10)
-                            string2 += buffer2.get(j * 16 + i).toInt().toChar()
-                        Log.i(TAG, "File: $string1.$string2")
-                        string1 = ""
-                        string1 += String.format("%02x", buffer2.get(j * 16 + 11))
-                        var num = Integer.parseInt(string1, 16)
-                        string2 = "Attrib: $string1 "
-                        string2 += Integer.toBinaryString(num)
-                        if (num % 2 == 1)
-                            string2 += ", Read-only"
-                        if ((num / 2) % 2 == 1)
-                            string2 += ", Hidden"
-                        if ((num / 4) % 2 == 1)
-                            string2 += ", System"
-                        if ((num / 8) % 2 == 1)
-                            string2 += ", Volume label"
-                        if ((num / 16) % 2 == 1)
-                            string2 += ", Subdirectory"
-                        if ((num / 32) % 2 == 1)
-                            string2 += ", Archive"
-                        Log.i(TAG, string2)
-                        string1 = ""
-                        string1 += String.format("%02x", buffer2.get(j * 16 + 27))
-                        string1 += String.format("%02x", buffer2.get(j * 16 + 26))
-                        num = string1.toInt(16)
-                        when (num) {
-                            0 -> Log.i(TAG, "First Logical Cluster: $num $string1 Reserved Entry")
-                            1 -> Log.i(TAG, "First Logical Cluster: $num $string1 Reserved Entry")
-                            else -> Log.i(TAG, "First Logical Cluster: $num $string1")
-                        }
-
-                        string2 = ""
-                        string2 += String.format("%02x", buffer2.get(j * 16 + 31))
-                        string2 += String.format("%02x", buffer2.get(j * 16 + 30))
-                        string2 += String.format("%02x", buffer2.get(j * 16 + 29))
-                        string2 += String.format("%02x", buffer2.get(j * 16 + 28))
-                        val num2 = string2.toLong(16)
-                        Log.i(TAG, "File Size (in bytes): $num2 $string2")
-                    }
+/*
+//                    for (j in 0..31 step 2) {
+//                        var string1 = ""
+//                        var string2 = ""
+//                        var string3 = ""
+//                        var string4 = ""
+//                        for (i in 0..15) {
+//                            string1 += String.format("%02x", buffer2.get(j * 16 + i))
+//                            string2 += buffer2.get(j * 16 + i).toInt().toChar()
+//                            string3 += String.format("%02x", buffer2.get((j + 1) * 16 + i))
+//                            string4 += buffer2.get((j + 1) * 16 + i).toInt().toChar()
+//                        }
+//                        Log.i(
+//                            TAG,
+//                            "Root Directory Entry " + (j / 2) + ": " + (2560 + j * 16) + ".." + (2592 + j * 16 - 1) + ":"
+//                        )
+//                        Log.i(TAG, string1)
+//                        Log.i(TAG, string3)
+//                        Log.i(TAG, string2)
+//                        Log.i(TAG, string4)
+//                        string1 = ""
+//                        string2 = ""
+//                        for (i in 0..7)
+//                            string1 += buffer2.get(j * 16 + i).toInt().toChar()
+//                        for (i in 8..10)
+//                            string2 += buffer2.get(j * 16 + i).toInt().toChar()
+//                        Log.i(TAG, "File: $string1.$string2")
+//                        string1 = ""
+//                        string1 += String.format("%02x", buffer2.get(j * 16 + 11))
+//                        var num = Integer.parseInt(string1, 16)
+//                        string2 = "Attrib: $string1 "
+//                        string2 += Integer.toBinaryString(num)
+//                        if (num % 2 == 1)
+//                            string2 += ", Read-only"
+//                        if ((num / 2) % 2 == 1)
+//                            string2 += ", Hidden"
+//                        if ((num / 4) % 2 == 1)
+//                            string2 += ", System"
+//                        if ((num / 8) % 2 == 1)
+//                            string2 += ", Volume label"
+//                        if ((num / 16) % 2 == 1)
+//                            string2 += ", Subdirectory"
+//                        if ((num / 32) % 2 == 1)
+//                            string2 += ", Archive"
+//                        Log.i(TAG, string2)
+//                        string1 = ""
+//                        string1 += String.format("%02x", buffer2.get(j * 16 + 27))
+//                        string1 += String.format("%02x", buffer2.get(j * 16 + 26))
+//                        num = string1.toInt(16)
+//                        when (num) {
+//                            0 -> Log.i(TAG, "First Logical Cluster: $num $string1 Reserved Entry")
+//                            1 -> Log.i(TAG, "First Logical Cluster: $num $string1 Reserved Entry")
+//                            else -> Log.i(TAG, "First Logical Cluster: $num $string1")
+//                        }
+//
+//                        string2 = ""
+//                        string2 += String.format("%02x", buffer2.get(j * 16 + 31))
+//                        string2 += String.format("%02x", buffer2.get(j * 16 + 30))
+//                        string2 += String.format("%02x", buffer2.get(j * 16 + 29))
+//                        string2 += String.format("%02x", buffer2.get(j * 16 + 28))
+//                        val num2 = string2.toLong(16)
+//                        Log.i(TAG, "File Size (in bytes): $num2 $string2")
+//                    }
+*/
 
                     val buffer3 = ByteBuffer.allocate(3072)
                     blockDevice.read(3072, buffer3)

@@ -1,7 +1,6 @@
 package com.github.mjdev.libaums.fs.fat12
 
 import android.util.Log
-import com.github.mjdev.libaums.fs.fat32.Fat32FileSystem
 import java.nio.ByteBuffer
 import kotlin.experimental.and
 

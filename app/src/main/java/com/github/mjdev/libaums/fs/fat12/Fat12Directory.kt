@@ -34,7 +34,7 @@ class Fat12Directory (buffer: ByteBuffer, bootSector: Fat12BootSector, offset: L
         entryAmount = bootSector.directoryEntriesDec
         this.offset = offset
 
-        //todo: Create class for file directory object to reduce to code here
+        //todo: Create class for file directory object to reduce to code here???
         directory = Array(entryAmount){""}
         directory16Bytes = Array(entryAmount * 2){""}
         filename = Array(entryAmount){""}

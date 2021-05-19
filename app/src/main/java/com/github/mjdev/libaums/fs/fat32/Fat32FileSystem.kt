@@ -131,74 +131,12 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                             buffer.get(55).toInt().toChar() != 'A' ||
                             buffer.get(56).toInt().toChar() != 'T' ||
                             buffer.get(57).toInt().toChar() != '1' ||
-                            buffer.get(58).toInt().toChar() != '2' ||
-                            buffer.get(59).toInt().toChar() != ' ' ||
-                            buffer.get(60).toInt().toChar() != ' ' ||
-                            buffer.get(61).toInt().toChar() != ' ')) {
-                    Log.i(TAG, "It is FAT12!!!")
-
-                    //todo: Next step, create file system from blockDevice
-                    var offset = 0L
-                    var size = 512  //Boot Sector Size
-                    val bootSector = Fat12BootSector(buffer)
-                    bootSector.log()
-
-                    //Fat12 Fat table
-                    offset += size
-                    size = (bootSector.fatCopiesDec * bootSector.sectorsPerFatDec + bootSector.reservedSectorsDec - 1) * bootSector.bytesPerSectorDec
-                    var buffer1 = ByteBuffer.allocate(size) //2048
-                    blockDevice.read(offset, buffer1)
-                    buffer1.flip()
-                    val fat12Tables = Fat12FAT(buffer1, bootSector)
-                    fat12Tables.log()
-
-                    //Fat12 Directories
-                    offset += size
-                    size = bootSector.directoryEntriesDec * 32
-                    buffer1 = ByteBuffer.allocate(size)
-                    blockDevice.read(offset, buffer1)
-                    buffer1.flip()
-                    val fat12Directory = Fat12Directory(buffer1, bootSector, offset)
-                    fat12Directory.log()
-
-                    //Finding PDF file
-                    for (i in 0 until fat12Directory.entryAmount) {
-                        val string = fat12Directory.filename[i]
-                        if (string.substring(string.length - 4, string.length)
-                                .lowercase().contains(".pdf")){
-                            fat12Directory.indexLastFile = i
-                            @Suppress("SpellCheckingInspection")
-                            Log.i(TAG, "File Name: " + fat12Directory.filename[i] + " - File Size: " + fat12Directory.fileSize[i])
-                            break
-                        }
-                    }
-
-                    //Fat12 File Data
-                    if (fat12Directory.indexLastFile != -1) {
-                        offset += size
-                        size = (bootSector.sectorsInFilesystemDec * bootSector.bytesPerSectorDec) - offset.toInt() - 1
-                        buffer1 = ByteBuffer.allocate(size)
-                        blockDevice.read(offset, buffer1)
-                        buffer1.flip()
-                        val fat12FileData = Fat12FileData(buffer1, bootSector, fat12Tables, fat12Directory, offset)
-                        fat12FileData.log()
-
-                        //Save PDF File on Android Phone
-                        //todo: File Path can be changed here
-                        Fat12SaveFile("/storage/emulated/0/Download", fat12Directory.filename[fat12Directory.indexLastFile], fat12FileData)
-                    }
-                }
-                if (!(buffer.get(54).toInt().toChar() != 'F' ||
-                            buffer.get(55).toInt().toChar() != 'A' ||
-                            buffer.get(56).toInt().toChar() != 'T' ||
-                            buffer.get(57).toInt().toChar() != '1' ||
                             buffer.get(58).toInt().toChar() != '6' ||
                             buffer.get(59).toInt().toChar() != ' ' ||
                             buffer.get(60).toInt().toChar() != ' ' ||
                             buffer.get(61).toInt().toChar() != ' ')) {
                     Log.i(TAG, "It is FAT16!!!")
-                }
-                if (!(buffer.get(54).toInt().toChar() != 'F' ||
+                } else if (!(buffer.get(54).toInt().toChar() != 'F' ||
                             buffer.get(55).toInt().toChar() != 'A' ||
                             buffer.get(56).toInt().toChar() != 'T' ||
                             buffer.get(57).toInt().toChar() != ' ' ||
@@ -207,6 +145,17 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                             buffer.get(60).toInt().toChar() != ' ' ||
                             buffer.get(61).toInt().toChar() != ' ')) {
                     Log.i(TAG, "It is FAT!!!")
+                    readFat12 (blockDevice, buffer)
+                } else if (!(buffer.get(54).toInt().toChar() != 'F' ||
+                            buffer.get(55).toInt().toChar() != 'A' ||
+                            buffer.get(56).toInt().toChar() != 'T' ||
+                            buffer.get(57).toInt().toChar() != '1' ||
+                            buffer.get(58).toInt().toChar() != '2' ||
+                            buffer.get(59).toInt().toChar() != ' ' ||
+                            buffer.get(60).toInt().toChar() != ' ' ||
+                            buffer.get(61).toInt().toChar() != ' ')) {
+                    Log.i(TAG, "It is FAT12!!!")
+                    readFat12 (blockDevice, buffer)
                 }
                 null
             } else {
@@ -215,6 +164,59 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                 null
             }
 
+        }
+
+        private fun readFat12 (blockDevice: BlockDeviceDriver, buffer: ByteBuffer){
+            //todo: Next step, create file system from blockDevice
+            var offset = 0L
+            var size = 512  //Boot Sector Size
+            val bootSector = Fat12BootSector(buffer)
+            bootSector.log()
+
+            //Fat12 Fat table
+            offset += size
+            size = (bootSector.fatCopiesDec * bootSector.sectorsPerFatDec + bootSector.reservedSectorsDec - 1) * bootSector.bytesPerSectorDec
+            var buffer1 = ByteBuffer.allocate(size) //2048
+            blockDevice.read(offset, buffer1)
+            buffer1.flip()
+            val fat12Tables = Fat12FAT(buffer1, bootSector)
+            fat12Tables.log()
+
+            //Fat12 Directories
+            offset += size
+            size = bootSector.directoryEntriesDec * 32
+            buffer1 = ByteBuffer.allocate(size)
+            blockDevice.read(offset, buffer1)
+            buffer1.flip()
+            val fat12Directory = Fat12Directory(buffer1, bootSector, offset)
+            fat12Directory.log()
+
+            //Finding PDF file
+            for (i in 0 until fat12Directory.entryAmount) {
+                val string = fat12Directory.filename[i]
+                if (string.substring(string.length - 4, string.length)
+                        .lowercase().contains(".pdf")){
+                    fat12Directory.indexLastFile = i
+                    @Suppress("SpellCheckingInspection")
+                    Log.i(TAG, "File Name: " + fat12Directory.filename[i] + " - File Size: " + fat12Directory.fileSize[i])
+                    break
+                }
+            }
+
+            //Fat12 File Data
+            if (fat12Directory.indexLastFile != -1) {
+                offset += size
+                size = (bootSector.sectorsInFilesystemDec * bootSector.bytesPerSectorDec) - offset.toInt() - 1
+                buffer1 = ByteBuffer.allocate(size)
+                blockDevice.read(offset, buffer1)
+                buffer1.flip()
+                val fat12FileData = Fat12FileData(buffer1, bootSector, fat12Tables, fat12Directory, offset)
+                fat12FileData.log()
+
+                //Save PDF File on Android Phone
+                //todo: File Path can be changed here
+                Fat12SaveFile("/storage/emulated/0/Download", fat12Directory.filename[fat12Directory.indexLastFile], fat12FileData)
+            }
         }
     }
 }

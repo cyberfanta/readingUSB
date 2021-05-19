@@ -12,12 +12,12 @@ class Fat12FAT (buffer: ByteBuffer, bootSector: Fat12BootSector) {
     var fat: Array<String>
     var fatHex: Array<String>
 
-    var fatCopies = 1
-    var sectorsPerFat = 1
+    var fatCopies = -1
+    var bytesPerFat = -1
 
     init {
         fatCopies = bootSector.fatCopiesDec
-        sectorsPerFat = bootSector.sectorsPerFatDec //todo: add support to many Fat12 devices
+        bytesPerFat = bootSector.sectorsPerFatDec * bootSector.bytesPerSectorDec
 
         fat = Array(fatCopies){""}
         fatHex = Array(fatCopies){""}
@@ -26,7 +26,7 @@ class Fat12FAT (buffer: ByteBuffer, bootSector: Fat12BootSector) {
             var string1 = ""
             var string2 = ""
             val k = 512 * (j - 1)
-            for (i in (0 + k)..(511 + k) step 3) {
+            for (i in (0 + k)..(bytesPerFat - 1 + k) step 3) {
                 var string3 = ""
                 var string4 = ""
                 var string5 = ""
@@ -67,7 +67,7 @@ class Fat12FAT (buffer: ByteBuffer, bootSector: Fat12BootSector) {
                 } catch (e: IndexOutOfBoundsException) {
                 }
 
-                val num1 = string3.toLong(16) //todo: revisar conversion a 12 bits
+                val num1 = string3.toLong(16) //todo: check conversion to 12 bits for random access Fat12FAT
                 val num2 = string4.toLong(16)
 
                 string1 += " - $string3 $string4 ($string5 $string6) - $num1 $num2\n"
@@ -80,7 +80,7 @@ class Fat12FAT (buffer: ByteBuffer, bootSector: Fat12BootSector) {
     override fun toString(): String {
         var result = ""
         for (j in 1..fatCopies) {
-            result += "FAT $j: " + (512 + (j - 1) * 512) + ".." + (1023 + (j - 1) * 512) + ": "
+            result += "FAT $j: " + (512 + (j - 1) * bytesPerFat) + ".." + (512 + j * bytesPerFat) + ": "
             result += fat[j-1] + ", "
             result += fatHex[j-1] + ", "
         }

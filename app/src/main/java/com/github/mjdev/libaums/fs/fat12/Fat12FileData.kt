@@ -45,14 +45,9 @@ class Fat12FileData(buffer: ByteBuffer, bootSector: Fat12BootSector, fat12Tables
     }
 
     override fun toString(): String {
-        var result = ""
-        for (i in 0 until clusterAmount) {
-            result += "{File Data (Cluster $i): " +
-                    " File Data (in hex): " + clusterHex[i] +
-                    " File Data (in char): " + cluster[i] +
-                    "}, "
-        }
-        result = result.substring(0, result.length - 2)
+        val result = " File Data (Total Clusters $clusterAmount): " +
+                " File Data (in char): " + cluster.contentToString() +
+                " File Data (in hex): " + clusterHex.contentToString()
         return "Fat12FileData($result)"
     }
 

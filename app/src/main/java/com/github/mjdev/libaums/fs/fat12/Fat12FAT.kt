@@ -4,16 +4,24 @@ import android.util.Log
 import java.nio.ByteBuffer
 import kotlin.experimental.and
 
+@Suppress("MemberVisibilityCanBePrivate")
 class Fat12FAT (buffer: ByteBuffer, bootSector: Fat12BootSector) {
+    @Suppress("PrivatePropertyName")
     private val TAG = this::class.java.simpleName
 
-    lateinit var fat: Array<String>
-    lateinit var fatHex: Array<String>
+    var fat: Array<String>
+    var fatHex: Array<String>
 
     var fatCopies = 1
+    var sectorsPerFat = 1
 
     init {
-        this.fatCopies = bootSector.fatCopiesDec
+        fatCopies = bootSector.fatCopiesDec
+        sectorsPerFat = bootSector.sectorsPerFatDec //todo: add support to many Fat12 devices
+
+        fat = Array(fatCopies){""}
+        fatHex = Array(fatCopies){""}
+
         for (j in 1..this.fatCopies) {
             var string1 = ""
             var string2 = ""
@@ -64,20 +72,20 @@ class Fat12FAT (buffer: ByteBuffer, bootSector: Fat12BootSector) {
 
                 string1 += " - $string3 $string4 ($string5 $string6) - $num1 $num2\n"
             }
-            fat[j-1] = string1
-            fatHex[j-1] = string2
+            fat[j-1] = string2
+            fatHex[j-1] = string1
         }
     }
 
     override fun toString(): String {
-        var result = "Fat12FAT("
-        for (j in 1..this.fatCopies) {
+        var result = ""
+        for (j in 1..fatCopies) {
             result += "FAT $j: " + (512 + (j - 1) * 512) + ".." + (1023 + (j - 1) * 512) + ": "
             result += fat[j-1] + ", "
             result += fatHex[j-1] + ", "
         }
-        result = result.substring(0, result.length - 1)
-        return "$result)"
+        result = result.substring(0, result.length - 2)
+        return "Fat12FAT($result)"
     }
 
     fun log() {

@@ -3,7 +3,9 @@ package com.github.mjdev.libaums.fs.fat12
 import android.util.Log
 import java.nio.ByteBuffer
 
+@Suppress("MemberVisibilityCanBePrivate")
 class Fat12BootSector(buffer: ByteBuffer) {
+    @Suppress("PrivatePropertyName")
     private val TAG = this::class.java.simpleName
 
     var bootstrap = ""
@@ -80,8 +82,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.bootstrap = string1
-        this.bootstrapHex = string2
+        this.bootstrap = string2
+        this.bootstrapHex = string1
 
         string1 = ""
         string2 = ""
@@ -89,8 +91,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.version = string1
-        this.versionHex = string2
+        this.version = string2
+        this.versionHex = string1
 
         string1 = ""
         string2 = ""
@@ -99,8 +101,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(12).toInt().toChar()
         string2 += buffer.get(11).toInt().toChar()
         var num = Integer.parseInt(string1, 16)
-        this.bytesPerSector = string1
-        this.bytesPerSectorHex = string2
+        this.bytesPerSector = string2
+        this.bytesPerSectorHex = string1
         this.bytesPerSectorDec = num
 
         string1 = ""
@@ -108,8 +110,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string1 += String.format("%02x", buffer.get(13))
         string2 += buffer.get(13).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.sectorsPerCluster = string1
-        this.sectorsPerClusterHex = string2
+        this.sectorsPerCluster = string2
+        this.sectorsPerClusterHex = string1
         this.sectorsPerClusterDec = num
 
         string1 = ""
@@ -119,8 +121,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(15).toInt().toChar()
         string2 += buffer.get(14).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.reservedSectors = string1
-        this.reservedSectorsHex = string2
+        this.reservedSectors = string2
+        this.reservedSectorsHex = string1
         this.reservedSectorsDec = num
         when (num) {
             1 -> this.reservedSectorsText = "(FAT12 or FAT16)"
@@ -132,8 +134,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string1 += String.format("%02x", buffer.get(16))
         string2 += buffer.get(16).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.fatCopies = string1
-        this.fatCopiesHex = string2
+        this.fatCopies = string2
+        this.fatCopiesHex = string1
         this.fatCopiesDec = num
 
         string1 = ""
@@ -143,8 +145,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(18).toInt().toChar()
         string2 += buffer.get(17).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.directoryEntries = string1
-        this.directoryEntriesHex = string2
+        this.directoryEntries = string2
+        this.directoryEntriesHex = string1
         this.directoryEntriesDec = num
         when (num) {
             0 -> this.directoryEntriesText = "(FAT32)"
@@ -158,16 +160,16 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(20).toInt().toChar()
         string2 += buffer.get(19).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.sectorsInFilesystem = string1
-        this.sectorsInFilesystemHex = string2
+        this.sectorsInFilesystem = string2
+        this.sectorsInFilesystemHex = string1
         this.sectorsInFilesystemDec = num
 
         string1 = ""
         string2 = ""
         string1 += String.format("%02x", buffer.get(21))
         string2 += buffer.get(21).toInt().toChar()
-        this.mediaDescriptorType = string1
-        this.mediaDescriptorTypeHex = string2
+        this.mediaDescriptorType = string2
+        this.mediaDescriptorTypeHex = string1
         when (string1) {
             "f0" -> this.mediaDescriptorTypeText = "(1.4 MB 3.5\" floppy)"
             "f8" -> this.mediaDescriptorTypeText = "(hard disk)"
@@ -180,8 +182,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(23).toInt().toChar()
         string2 += buffer.get(22).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.sectorsPerFat = string1
-        this.sectorsPerFatHex = string2
+        this.sectorsPerFat = string2
+        this.sectorsPerFatHex = string1
         this.sectorsPerFatDec = num
         when (num) {
             0 -> this.sectorsPerFatText = "(FAT32)"
@@ -194,8 +196,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(25).toInt().toChar()
         string2 += buffer.get(24).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.sectorsPerTrack = string1
-        this.sectorsPerTrackHex = string2
+        this.sectorsPerTrack = string2
+        this.sectorsPerTrackHex = string1
         this.sectorsPerTrackDec = num
 
         string1 = ""
@@ -205,8 +207,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 += buffer.get(27).toInt().toChar()
         string2 += buffer.get(26).toInt().toChar()
         num = Integer.parseInt(string1, 16)
-        this.numberOfHeads = string1
-        this.numberOfHeadsHex = string2
+        this.numberOfHeads = string2
+        this.numberOfHeadsHex = string1
         this.numberOfHeadsDec = num
         when (num) {
             2 -> this.numberOfHeadsText = "(double-sided diskette)"
@@ -219,8 +221,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string2 += buffer.get(i).toInt().toChar()
         }
         num = Integer.parseInt(string1, 16)
-        this.hiddenSectors = string1
-        this.hiddenSectorsHex = string2
+        this.hiddenSectors = string2
+        this.hiddenSectorsHex = string1
         this.hiddenSectorsDec = num
 
         string1 = ""
@@ -230,23 +232,23 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string2 += buffer.get(i).toInt().toChar()
         }
         num = Integer.parseInt(string1, 16)
-        this.sectorsInFat32Filesystem = string1
-        this.sectorsInFat32FilesystemHex = string2
+        this.sectorsInFat32Filesystem = string2
+        this.sectorsInFat32FilesystemHex = string1
         this.sectorsInFat32FilesystemDec = num
 
         string1 = ""
         string2 = ""
         string1 += String.format("%02x", buffer.get(36))
         string2 += buffer.get(36).toInt().toChar()
-        this.logicalDriveNumber = string1
-        this.logicalDriveNumberHex = string2
+        this.logicalDriveNumber = string2
+        this.logicalDriveNumberHex = string1
 
         string1 = ""
         string2 = ""
         string1 += String.format("%02x", buffer.get(37))
         string2 += buffer.get(37).toInt().toChar()
-        this.reserved = string1
-        this.reservedHex = string2
+        this.reserved = string2
+        this.reservedHex = string1
         when (string1) {
             "00" -> this.reservedText = "(need disk check)"
             "01" -> this.reservedText = "(need surface scan)"
@@ -256,8 +258,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
         string2 = ""
         string1 += String.format("%02x", buffer.get(38))
         string2 += buffer.get(38).toInt().toChar()
-        this.extendedSignature = string1
-        this.extendedSignatureHex = string2
+        this.extendedSignature = string2
+        this.extendedSignatureHex = string1
 
         string1 = ""
         string2 = ""
@@ -265,8 +267,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.serialNumber = string1
-        this.serialNumberHex = string2
+        this.serialNumber = string2
+        this.serialNumberHex = string1
 
         string1 = ""
         string2 = ""
@@ -274,8 +276,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.volumeLabel = string1
-        this.volumeLabelHex = string2
+        this.volumeLabel = string2
+        this.volumeLabelHex = string1
 
         string1 = ""
         string2 = ""
@@ -283,8 +285,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.filesystemType = string1
-        this.filesystemTypeHex = string2
+        this.filesystemType = string2
+        this.filesystemTypeHex = string1
         when (string1) {
             "FAT12   " -> this.filesystemTypeText = "(FAT12)"
             "FAT16   " -> this.filesystemTypeText = "(FAT16)"
@@ -297,8 +299,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.bottomBootstrap = string1
-        this.bottomBootstrapHex = string2
+        this.bottomBootstrap = string2
+        this.bottomBootstrapHex = string1
 
         string1 = ""
         string2 = ""
@@ -306,8 +308,8 @@ class Fat12BootSector(buffer: ByteBuffer) {
             string1 += String.format("%02x", buffer.get(i))
             string2 += buffer.get(i).toInt().toChar()
         }
-        this.signature = string1
-        this.signatureHex = string2
+        this.signature = string2
+        this.signatureHex = string1
     }
 
     override fun toString(): String {

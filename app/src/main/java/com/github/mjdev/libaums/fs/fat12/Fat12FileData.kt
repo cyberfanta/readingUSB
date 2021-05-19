@@ -8,7 +8,7 @@ class Fat12FileData(buffer: ByteBuffer, bootSector: Fat12BootSector, fat12Tables
     @Suppress("PrivatePropertyName")
     private val TAG = this::class.java.simpleName
 
-    lateinit var cluster: Array<String>
+    lateinit var cluster: Array<Byte>
     lateinit var clusterHex: Array<String>
 
     var clusterAmount = -1
@@ -17,22 +17,24 @@ class Fat12FileData(buffer: ByteBuffer, bootSector: Fat12BootSector, fat12Tables
         if (fat12Directory.indexLastFile != -1) {
             val fileSize = fat12Directory.fileSize[fat12Directory.indexLastFile]
             val bytesPerCluster = bootSector.sectorsPerClusterDec * bootSector.bytesPerSectorDec
-            clusterAmount = (fileSize / bytesPerCluster).toInt()
+            var num = fileSize.toFloat() / bytesPerCluster.toFloat()
+            val num2 = num.toInt()
+            if (num - num2 > 0)
+                num++
+            clusterAmount = num.toInt()
 
             Log.i(TAG, "Amount of Cluster: $clusterAmount")
 
-            cluster = Array(clusterAmount+1){""}
-            clusterHex = Array(clusterAmount+1){""}
+            cluster = Array(clusterAmount * bytesPerCluster + 1){0x00.toByte()}
+            clusterHex = Array(clusterAmount + 1){""}
 
-            for (k in 0 .. clusterAmount) {
+            for (k in 0 until clusterAmount) {
                 var string1 = ""
-                var string2 = ""
                 val l = 512 * k
                 for (i in (0 + l)..(511 + l)) {
                     string1 += String.format("%02x", buffer.get(i))
-                    string2 += buffer.get(i).toInt().toChar()
+                    cluster[i] = buffer.get(i)
                 }
-                cluster[k] = string2
                 clusterHex[k] = string1
             }
         } else {
@@ -40,7 +42,6 @@ class Fat12FileData(buffer: ByteBuffer, bootSector: Fat12BootSector, fat12Tables
             //bootSector and fat12Tables will be used here
             log()
         }
-
     }
 
     override fun toString(): String {

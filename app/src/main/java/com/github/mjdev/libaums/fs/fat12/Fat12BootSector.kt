@@ -341,7 +341,7 @@ class Fat12BootSector(buffer: ByteBuffer) {
                 "Filesystem type: 54..61: '$filesystemType' - '$filesystemTypeHex'" +
                 (if (filesystemTypeText == "") ", " else " - '$filesystemTypeText', ") +
                 "Bootstrap: 62..509: '$bottomBootstrap' - '$bottomBootstrapHex', " +
-                "Signature: 510..511: '$signature' - '$signatureHex', " +
+                "Signature: 510..511: '$signature' - '$signatureHex'" +
                 ")"
     }
 

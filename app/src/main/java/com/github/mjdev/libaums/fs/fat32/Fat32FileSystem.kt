@@ -21,15 +21,11 @@ import android.util.Log
 import com.github.mjdev.libaums.driver.BlockDeviceDriver
 import com.github.mjdev.libaums.fs.FileSystem
 import com.github.mjdev.libaums.fs.UsbFile
-import com.github.mjdev.libaums.fs.fat12.Fat12BootSector
-import com.github.mjdev.libaums.fs.fat12.Fat12Directory
-import com.github.mjdev.libaums.fs.fat12.Fat12FAT
-import com.github.mjdev.libaums.fs.fat12.Fat12FileData
+import com.github.mjdev.libaums.fs.fat12.*
 import com.github.mjdev.libaums.partition.PartitionTypes
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.experimental.and
 
 /**
  * This class represents the FAT32 file system and is responsible for setting
@@ -57,6 +53,7 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
 
     private val bootSector: Fat32BootSector = Fat32BootSector.read(first512Bytes)
     private val fat: FAT
+    @Suppress("JoinDeclarationAndAssignment")
     private val fsInfoStructure: FsInfoStructure
     override val rootDirectory: FatDirectory
     /**
@@ -71,6 +68,7 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
 
     override val volumeLabel: String
         get() {
+            @Suppress("SimpleRedundantLet")
             return rootDirectory.volumeLabel?.let { it }.orEmpty()
         }
 
@@ -169,7 +167,8 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                         if (string.substring(string.length - 4, string.length)
                                 .lowercase().contains(".pdf")){
                             fat12Directory.indexLastFile = i
-                            Log.i(TAG, "Filename: " + fat12Directory.filename[i] + " - Filesize: " + fat12Directory.fileSize[i])
+                            @Suppress("SpellCheckingInspection")
+                            Log.i(TAG, "File Name: " + fat12Directory.filename[i] + " - File Size: " + fat12Directory.fileSize[i])
                             break
                         }
                     }
@@ -183,10 +182,11 @@ private constructor(blockDevice: BlockDeviceDriver, first512Bytes: ByteBuffer) :
                         buffer1.flip()
                         val fat12FileData = Fat12FileData(buffer1, bootSector, fat12Tables, fat12Directory, offset)
                         fat12FileData.log()
+
+                        //Save PDF File on Android Phone
+                        //todo: File Path can be changed here
+                        Fat12SaveFile("/storage/emulated/0/Download", fat12Directory.filename[fat12Directory.indexLastFile], fat12FileData)
                     }
-
-                    //Save PDF File on Android Phone
-
                 }
                 if (!(buffer.get(54).toInt().toChar() != 'F' ||
                             buffer.get(55).toInt().toChar() != 'A' ||

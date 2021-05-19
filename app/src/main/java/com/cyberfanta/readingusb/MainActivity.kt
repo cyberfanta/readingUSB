@@ -1,22 +1,25 @@
 package com.cyberfanta.readingusb
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.hardware.usb.*
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.github.mjdev.libaums.UsbMassStorageDevice
 import com.github.mjdev.libaums.fs.FileSystem
 import com.github.mjdev.libaums.fs.UsbFile
-import com.github.mjdev.libaums.partition.mbr.MasterBootRecord
 import java.io.IOException
 
 @Suppress("UNUSED_PARAMETER")
@@ -225,6 +228,24 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     fun setupDeviceAction (view: View) {
+        if (
+            !(
+                    (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                    )
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                ), 1500
+            )
+            if (!(
+                        (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                        )
+            ) {
+                return
+            }
+        }
+
+
         val devices : Array<UsbMassStorageDevice> = UsbMassStorageDevice.getMassStorageDevices(this)
 
         if (devices.isEmpty()) {
